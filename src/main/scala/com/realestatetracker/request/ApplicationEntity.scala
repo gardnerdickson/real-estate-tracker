@@ -21,6 +21,10 @@ object RealtorProperty {
       realtorResult.PostalCode
     )
   }
+
+  def apply(realtorResults: List[RealtorResult]): List[RealtorProperty] = {
+    realtorResults.map(RealtorProperty.apply)
+  }
 }
 
 

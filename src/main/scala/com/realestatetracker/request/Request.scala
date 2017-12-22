@@ -2,15 +2,9 @@ package com.realestatetracker.request
 
 import java.net.URI
 
-import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
-import com.fasterxml.jackson.module.scala.DefaultScalaModule
+import com.typesafe.scalalogging.LazyLogging
 import org.apache.http.NameValuePair
-import org.apache.http.client.entity.UrlEncodedFormEntity
-import org.apache.http.client.methods.HttpPost
-import org.apache.http.impl.client.HttpClientBuilder
-
-import scala.collection.JavaConverters._
-import scala.reflect.ClassTag
+import org.apache.http.message.BasicNameValuePair
 
 
 trait GetRequest[T] {
@@ -25,35 +19,61 @@ trait PostRequest[T] {
   def post(): T
 }
 
+trait PagedPostRequest[T] extends Iterable[T] {
+  def all(): List[T]
+}
+
 trait PostRequestBuilder[T] {
   def build: PostRequest[T]
 }
 
+trait PagedPostRequestBuilder[T] {
+  def build: PagedPostRequest[T]
+}
 
-class UrlEncodedFormRequest[T](uri: URI, body: List[NameValuePair])(implicit ct: ClassTag[T]) extends PostRequest[T] {
-  override def post(): T = {
-    val httpClient = HttpClientBuilder.create.build()
 
-    val request = new HttpPost(uri)
-    request.setHeader("Content-Type", "application/x-www-form-urlencoded")
-    request.setEntity(new UrlEncodedFormEntity(body.asJava))
+class RealtorUrlEncodedFormRequest(uri: URI, parameters: List[NameValuePair]) extends PagedPostRequest[RealtorResult] {
+  override def all(): List[RealtorResult] = {
+    iterator.toList
+  }
 
-    val response = httpClient.execute(request)
+  override def iterator: Iterator[RealtorResult] = {
+    new RealtorIterator
+  }
 
-    val objectMapper = new ObjectMapper()
-      .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-      .registerModule(DefaultScalaModule)
+  private class RealtorIterator extends Iterator[RealtorResult] with LazyLogging{
 
-    val responseEntity = objectMapper.readValue(response.getEntity.getContent, ct.runtimeClass).asInstanceOf[T]
+    private var currentItems: Array[RealtorResult] = Array()
+    private var currentIndex = 0
+    private var nextPage = 1
 
-    val indented = objectMapper.writerWithDefaultPrettyPrinter.writeValueAsString(responseEntity)
-    println(indented)
-//    objectMapper.readValue(response.getEntity.getContent, classOf[String])
+    override def hasNext: Boolean = {
 
-    responseEntity
+      def requestNextPage() = {
+        logger.debug(s"Requesting page $nextPage")
+        val response = HttpClient.urlEncodedPost[RealtorResponse](uri, new BasicNameValuePair("CurrentPage", nextPage.toString)::parameters)
+        logger.debug(s"Got ${response.Results.length} records.")
+
+        nextPage += 1
+        currentIndex = 0
+        response.Results
+      }
+
+      if (nextPage == 1 || currentIndex >= currentItems.length) {
+        currentItems = requestNextPage()
+        currentItems.nonEmpty
+      } else {
+        true
+      }
+    }
+
+    override def next(): RealtorResult = {
+      val item = currentItems(currentIndex)
+      currentIndex += 1
+      item
+    }
   }
 }
 
 
 case class MalformedRequestException(message: String, cause: Throwable = null) extends Exception(message, cause)
-
