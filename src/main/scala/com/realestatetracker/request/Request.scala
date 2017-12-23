@@ -2,6 +2,7 @@ package com.realestatetracker.request
 
 import java.net.URI
 
+import com.realestatetracker.entity.{RealtorResponse, RealtorResult}
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.http.NameValuePair
 import org.apache.http.message.BasicNameValuePair

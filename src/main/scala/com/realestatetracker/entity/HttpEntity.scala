@@ -1,4 +1,4 @@
-package com.realestatetracker.request
+package com.realestatetracker.entity
 
 trait HttpEntity {
 

@@ -10,3 +10,4 @@ libraryDependencies += "com.fasterxml.jackson.core" % "jackson-databind" % "2.9.
 libraryDependencies += "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.9.2"
 libraryDependencies += "com.typesafe.scala-logging" %% "scala-logging" % "3.7.2"
 libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.3"
+libraryDependencies += "com.h2database" % "h2" % "1.4.196"

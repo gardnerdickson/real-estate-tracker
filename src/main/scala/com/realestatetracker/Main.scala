@@ -1,6 +1,8 @@
 package com.realestatetracker
 
-import com.realestatetracker.request.{RealtorProperty, RealtorResource}
+import com.realestatetracker.entity.PropertyListing
+import com.realestatetracker.repository.PropertyListingRepository
+import com.realestatetracker.request.RealtorResource
 import com.typesafe.scalalogging.LazyLogging
 
 
@@ -26,9 +28,12 @@ object Main extends LazyLogging {
       .build
 
     val realtorResults = request.all()
-    val properties = RealtorProperty(realtorResults)
+    logger.info(s"Found ${realtorResults.length} property listings.")
+    val propertyListings = PropertyListing(realtorResults)
 
-    properties.foreach(x => println(x.price))
+    logger.info("Trying add listings to database.")
+    val propertyListingRepo = new PropertyListingRepository
+    propertyListingRepo.insertPropertyListings(propertyListings)
 
   }
 }

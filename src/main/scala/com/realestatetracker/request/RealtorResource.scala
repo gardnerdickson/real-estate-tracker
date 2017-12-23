@@ -1,5 +1,6 @@
 package com.realestatetracker.request
 
+import com.realestatetracker.entity.RealtorResult
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.http.client.utils.URIBuilder
 import org.apache.http.message.BasicNameValuePair
