@@ -2,7 +2,7 @@ package com.realestatetracker
 
 import com.realestatetracker.entity.PropertyListing
 import com.realestatetracker.repository.PropertyListingRepository
-import com.realestatetracker.request.RealtorResource
+import com.realestatetracker.request.{HouseSigmaHouseType, HouseSigmaResource, RealtorResource}
 import com.typesafe.scalalogging.LazyLogging
 
 
@@ -17,7 +17,7 @@ object Main extends LazyLogging {
 
   def main(args: Array[String]): Unit = {
 
-    val request = new RealtorResource()
+    val realtorRequest = new RealtorResource()
       .propertiesRequest
       .minimumLongitude(torontoMinLongitude)
       .maximumLongitude(torontoMaxLongitude)
@@ -27,13 +27,30 @@ object Main extends LazyLogging {
       .maximumPrice(maxPrice)
       .build
 
-    val realtorResults = request.all()
-    logger.info(s"Found ${realtorResults.length} property listings.")
-    val propertyListings = PropertyListing(realtorResults)
+//    val realtorResults = realtorRequest.all()
+//    logger.info(s"Found ${realtorResults.length} property listings.")
+//    val propertyListings = PropertyListing(realtorResults)
+//
+//    logger.info("Trying add listings to database.")
+//    val propertyListingRepo = new PropertyListingRepository
+//    propertyListingRepo.insertPropertyListings(propertyListings)
 
-    logger.info("Trying add listings to database.")
-    val propertyListingRepo = new PropertyListingRepository
-    propertyListingRepo.insertPropertyListings(propertyListings)
+    val houseSigmaRequest = new HouseSigmaResource()
+      .soldPropertiesRequest
+      .daysSinceSale(90)
+      .houseType(HouseSigmaHouseType.CONDO_APT)
+      .minimumLongitude(torontoMinLongitude)
+      .maximumLongitude(torontoMaxLongitude)
+      .minimumLatitude(torontoMinLatitude)
+      .maximumLatitude(torontoMaxLatitude)
+      .minimumPrice(minPrice)
+      .maximumPrice(maxPrice)
+      .build
+
+    val houseSigmaResult = houseSigmaRequest.post()
+    logger.info("Got sold properties results: " + houseSigmaResult.length)
+
+    println
 
   }
 }

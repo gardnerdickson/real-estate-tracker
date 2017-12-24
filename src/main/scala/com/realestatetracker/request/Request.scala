@@ -2,10 +2,12 @@ package com.realestatetracker.request
 
 import java.net.URI
 
-import com.realestatetracker.entity.{RealtorResponse, RealtorResult}
+import com.realestatetracker.entity._
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.http.NameValuePair
 import org.apache.http.message.BasicNameValuePair
+
+import scala.reflect.ClassTag
 
 
 trait GetRequest[T] {
@@ -16,7 +18,7 @@ trait GetRequestBuilder[T] {
   def build: GetRequest[T]
 }
 
-trait PostRequest[T] {
+trait PostRequest[T, K] {
   def post(): T
 }
 
@@ -24,8 +26,8 @@ trait PagedPostRequest[T] extends Iterable[T] {
   def all(): List[T]
 }
 
-trait PostRequestBuilder[T] {
-  def build: PostRequest[T]
+trait PostRequestBuilder[T, K] {
+  def build: PostRequest[T, K]
 }
 
 trait PagedPostRequestBuilder[T] {
@@ -75,6 +77,27 @@ class RealtorUrlEncodedFormRequest(uri: URI, parameters: List[NameValuePair]) ex
     }
   }
 }
+
+
+class EntityPostRequest[T, K](uri: URI, headers: Seq[(String, String)], body: K)(implicit ct: ClassTag[T]) extends PostRequest[T, K] {
+
+  def post(): T = {
+    HttpClient.entityPost[T, K](uri, headers, body)
+  }
+
+}
+
+class HouseSigmaPostRequest(uri: URI, headers: Seq[(String, String)], body: HouseSigmaRequest)
+  extends PostRequest[Array[HouseSigmaSoldRecord], HouseSigmaRequest] with LazyLogging {
+
+  override def post(): Array[HouseSigmaSoldRecord] = {
+    logger.debug(s"Requesting sold properties - $body")
+    val postRequest = new EntityPostRequest[HouseSigmaResponse, HouseSigmaRequest](uri, headers, body)
+    val response = postRequest.post()
+    response.data.list
+  }
+}
+
 
 
 case class MalformedRequestException(message: String, cause: Throwable = null) extends Exception(message, cause)

@@ -1,6 +1,6 @@
 package com.realestatetracker.repository
 
-import java.sql.{Connection, DriverManager}
+import java.sql.DriverManager
 
 import com.realestatetracker.entity.PropertyListing
 
@@ -9,7 +9,7 @@ class PropertyListingRepository {
   Class.forName("org.h2.Driver")
 
   def insertPropertyListings(propertyListings: Seq[PropertyListing]): Unit = {
-    val connection = DriverManager.getConnection("jdbc:h2:~/test", "sa", "")
+    val connection = DriverManager.getConnection("jdbc:h2:tcp://localhost/~/test", "sa", "")
 
     val statements = propertyListings.map(listing => connection.prepareStatement(insertStatement(listing)))
     statements.foreach(_.execute())
@@ -36,17 +36,17 @@ class PropertyListingRepository {
       |values
       |(
       |  ${propertyListing.realtorId},
-      |  ${propertyListing.mlsNumber},
-      |  ${propertyListing.description},
-      |  ${propertyListing.numberOfBathrooms},
-      |  ${propertyListing.numberOfBedrooms},
-      |  ${propertyListing.buildingType},
+      |  '${propertyListing.mlsNumber}',
+      |  '${propertyListing.description}',
+      |  '${propertyListing.numberOfBathrooms}',
+      |  '${propertyListing.numberOfBedrooms}',
+      |  '${propertyListing.buildingType}',
       |  ${propertyListing.price},
-      |  ${propertyListing.address},
+      |  '${propertyListing.address}',
       |  ${propertyListing.longitude},
       |  ${propertyListing.latitude},
-      |  ${propertyListing.postalCode}
-      |)
+      |  '${propertyListing.postalCode}'
+      |);
     """.stripMargin
   }
 }

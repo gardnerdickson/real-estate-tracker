@@ -7,6 +7,7 @@ trait ApplicationEntity {
 
 
 object PropertyListing {
+
   def apply(realtorResult: RealtorResult): PropertyListing = {
 
     def normalizeAndConvertPrice(price: String): Int = {
@@ -19,10 +20,14 @@ object PropertyListing {
         .toInt
     }
 
+    def normalizeDescription(description: String): String = {
+      description.replace("'", "")
+    }
+
     new PropertyListing(
       realtorResult.Id,
       realtorResult.MlsNumber,
-      realtorResult.PublicRemarks,
+      normalizeDescription(realtorResult.PublicRemarks),
       realtorResult.Building.BathroomTotal,
       realtorResult.Building.Bedrooms,
       realtorResult.Building.Type,
@@ -55,4 +60,6 @@ case class PropertyListing(
 ) extends ApplicationEntity
 
 
+case class SoldProperty(
 
+) extends ApplicationEntity

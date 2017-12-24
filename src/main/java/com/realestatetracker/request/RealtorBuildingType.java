@@ -1,7 +1,7 @@
 package com.realestatetracker.request;
 
 
-public enum BuildingType {
+public enum RealtorBuildingType {
     ANY(0),
     HOUSE(1),
     DUPLEX(2),
@@ -18,7 +18,7 @@ public enum BuildingType {
     MANUFACTURED_HOME(29);
 
     private Integer typeId;
-    BuildingType(Integer typeId) {
+    RealtorBuildingType(Integer typeId) {
         this.typeId = typeId;
     }
 

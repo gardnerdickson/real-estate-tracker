@@ -4,6 +4,10 @@ trait HttpEntity {
 
 }
 
+/*
+  Realtor.ca API
+ */
+
 case class RealtorResponse(
   ErrorCode: RealtorErrorCode,
   Paging: RealtorPaging,
@@ -68,3 +72,47 @@ case class Address(
   Longitude: Float,
   Latitude: Float
 ) extends HttpEntity
+
+
+/*
+  House Sigma (housesigma.com)
+ */
+
+case class HouseSigmaRequest(
+  lang: String,
+  house_type: String,
+  days: Int,
+  bedroom_range: Array[Int],
+  price_min: Int,
+  price_max: Int,
+  bathroom_min: Int,
+  garage_min: Int,
+  lat1: Float,
+  lon1: Float,
+  lat2: Float,
+  lon2: Float
+) extends HttpEntity
+
+case class HouseSigmaResponse(
+  status: Boolean,
+  data: HouseSigmaData
+) extends HttpEntity
+
+case class HouseSigmaData(
+  message: String,
+  list: Array[HouseSigmaSoldRecord]
+) extends HttpEntity
+
+case class HouseSigmaSoldRecord(
+  ml_num: String,
+  lat: Float,
+  lng: Float,
+  price: String,
+  sold: Int,
+  hash_id: String
+) extends HttpEntity
+
+
+/*
+  Mongo House (mongohouse.com)
+ */
