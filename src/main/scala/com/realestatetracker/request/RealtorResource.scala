@@ -50,7 +50,7 @@ class RealtorPropertiesRequestBuilder extends PagedPostRequestBuilder[RealtorRes
       new BasicNameValuePair("Version", "6.0")
     )
 
-    logger.info("Sending request with form parameters: ")
+    logger.info("Creating request with form parameters: ")
     formParameters.foreach(param => logger.info(s"\t${param.getName}: ${param.getValue}"))
 
     new RealtorUrlEncodedFormRequest(RealtorPropertiesRequestBuilder.URI, formParameters)

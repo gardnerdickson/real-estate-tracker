@@ -1,8 +1,8 @@
 package com.realestatetracker
 
-import com.realestatetracker.entity.PropertyListing
-import com.realestatetracker.repository.PropertyListingRepository
-import com.realestatetracker.request.{HouseSigmaHouseType, HouseSigmaResource, RealtorResource}
+import java.time.LocalDate
+
+import com.realestatetracker.request.{HouseSigmaHouseType, HouseSigmaResource, MongoHouseResource, RealtorResource}
 import com.typesafe.scalalogging.LazyLogging
 
 
@@ -47,8 +47,18 @@ object Main extends LazyLogging {
       .maximumPrice(maxPrice)
       .build
 
-    val houseSigmaResult = houseSigmaRequest.post()
-    logger.info("Got sold properties results: " + houseSigmaResult.length)
+//    val houseSigmaResult = houseSigmaRequest.post()
+//    logger.info("Got sold properties results: " + houseSigmaResult.length)
+//    houseSigmaResult.foreach(x => println(x.ml_num))
+
+    val mongoHouseRequest = new MongoHouseResource()
+      .soldPropertyReportRequest
+      .date(LocalDate.of(2017, 12, 21))
+      .city("Toronto")
+      .build
+
+    val mongoHouseResponse = mongoHouseRequest.get
+
 
     println
 

@@ -99,5 +99,13 @@ class HouseSigmaPostRequest(uri: URI, headers: Seq[(String, String)], body: Hous
 }
 
 
+class MongoHouseGetRequest(uri: URI, headers: Seq[(String, String)]) extends GetRequest[Array[MongoHouseResponse]] {
+
+  override def get: Array[MongoHouseResponse] = {
+    HttpClient.get[Array[MongoHouseResponse]](uri, headers)
+  }
+}
+
+
 
 case class MalformedRequestException(message: String, cause: Throwable = null) extends Exception(message, cause)

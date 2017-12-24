@@ -1,5 +1,7 @@
 package com.realestatetracker.entity
 
+import com.fasterxml.jackson.annotation.JsonProperty
+
 trait HttpEntity {
 
 }
@@ -116,3 +118,21 @@ case class HouseSigmaSoldRecord(
 /*
   Mongo House (mongohouse.com)
  */
+
+// TODO(gdickson): fill this out
+case class MongoHouseResponse(
+  @JsonProperty("_id")
+  mongoId: String,
+  @JsonProperty("DOM")
+  dom: Int,
+  @JsonProperty("_Sold")
+  soldPrice: Int,
+  @JsonProperty("Sold Date")
+  soldDate: String,
+  @JsonProperty("Contract Date")
+  contractDate: String,
+  @JsonProperty("_List")
+  listedPrice: Int,
+  @JsonProperty("MLS#")
+  mlsNumber: String,
+) extends HttpEntity
