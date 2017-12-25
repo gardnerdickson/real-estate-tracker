@@ -36,7 +36,7 @@ Version=6.0
 
 ### Toronto Coordinate Bounds
 
-top left:43.677901, -79.443024
+top left: 43.677901, -79.443024
 
 bottom right: 43.633278, -79.342944
 
@@ -46,3 +46,6 @@ bottom right: 43.633278, -79.342944
 - Powershell script
 - Run powershell script on a daily schedule
 - logging pass
+- Config directory
+  - JVM argument
+  - Contains config file

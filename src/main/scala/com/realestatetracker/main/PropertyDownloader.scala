@@ -1,4 +1,4 @@
-package com.realestatetracker
+package com.realestatetracker.main
 
 import java.time.LocalDate
 
@@ -9,12 +9,12 @@ import com.realestatetracker.request.{HouseSigmaHouseType, HouseSigmaResource, M
 import com.typesafe.scalalogging.LazyLogging
 
 
-object Main extends LazyLogging {
+object PropertyDownloader extends LazyLogging {
 
   def main(args: Array[String]): Unit = {
     downloadRealtorProperties()
     downloadMongoHouseProperties(LocalDate.parse(args(0), Config.commandLineDateFormat))
-    downloadSigmaHouseProperties()
+    //    downloadSigmaHouseProperties()
   }
 
 
@@ -34,12 +34,32 @@ object Main extends LazyLogging {
     val propertyListings = PropertyListing(realtorResults)
 
     // DEBUG
-    propertyListings.foreach(println)
+    //    propertyListings.foreach(println)
 
-//    logger.info("Adding realtor listings to the database.")
-//    val propertyListingRepo = new PropertyListingRepository
-//    propertyListingRepo.insertPropertyListings(propertyListings)
-//    logger.info("Done adding realtor listings to the database.")
+    logger.info("Adding realtor listings to the database.")
+    val propertyListingRepo = new PropertyListingRepository
+    propertyListingRepo.insertPropertyListings(propertyListings)
+    logger.info("Done adding realtor listings to the database.")
+  }
+
+  private def downloadMongoHouseProperties(reportDate: LocalDate): Unit = {
+    val mongoHouseRequest = new MongoHouseResource()
+      .soldPropertyReportRequest
+      .date(reportDate)
+      .city("Toronto")
+      .build
+
+    val mongoHouseRecords = mongoHouseRequest.get
+    logger.info(s"Got sold properties from mongohouse.com. ${mongoHouseRecords.length} total records.")
+    val mongoSoldProperties = MongoSoldProperty(mongoHouseRecords)
+
+    // DEBUG
+    //    mongoSoldProperties.foreach(println)
+
+    logger.info("Adding mongohouse properties to the database.")
+    val mongoRepository = new MongoSoldPropertyRepository
+    mongoRepository.insertSoldProperties(mongoSoldProperties)
+    logger.info("Done adding mongohouse properties to the database.")
   }
 
   private def downloadSigmaHouseProperties(): Unit = {
@@ -60,31 +80,11 @@ object Main extends LazyLogging {
     val houseSigmaProperties = SigmaSoldProperty(houseSigmaResult)
 
     // DEBUG
-    houseSigmaProperties.foreach(println)
+//    houseSigmaProperties.foreach(println)
 
-//    logger.info("Adding housesigma properties to the database.")
-//    val sigmaRepository = new SigmaSoldPropertyRepository
-//    sigmaRepository.insertSoldProperties(houseSigmaProperties)
-//    logger.info("Done adding housesigma properties to the database.")
-  }
-
-  private def downloadMongoHouseProperties(reportDate: LocalDate): Unit = {
-    val mongoHouseRequest = new MongoHouseResource()
-      .soldPropertyReportRequest
-      .date(reportDate)
-      .city("Toronto")
-      .build
-
-    val mongoHouseRecords = mongoHouseRequest.get
-    logger.info(s"Got sold properties from mongohouse.com. ${mongoHouseRecords.length} total records.")
-    val mongoSoldProperties = MongoSoldProperty(mongoHouseRecords)
-
-    // DEBUG
-    mongoSoldProperties.foreach(println)
-
-//    logger.info("Adding mongohouse properties to the database.")
-//    val mongoRepository = new MongoSoldPropertyRepository
-//    mongoRepository.insertSoldProperties(mongoSoldProperties)
-//    logger.info("Done adding mongohouse properties to the database.")
+    logger.info("Adding housesigma properties to the database.")
+    val sigmaRepository = new SigmaSoldPropertyRepository
+    sigmaRepository.insertSoldProperties(houseSigmaProperties)
+    logger.info("Done adding housesigma properties to the database.")
   }
 }

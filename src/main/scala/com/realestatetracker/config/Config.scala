@@ -1,28 +1,47 @@
 package com.realestatetracker.config
 
+import java.io.FileNotFoundException
+import java.nio.file.{Files, Paths}
 import java.time.format.DateTimeFormatter
+import java.util.Properties
 
 object Config {
 
+  private val settings = {
+    val configFile = System.getProperty("config.file")
+    if (configFile == null) {
+      throw new IllegalArgumentException("JVM argument 'config.file' not set.")
+    }
+    val path = Paths.get(configFile)
+    if (Files.notExists(path)) {
+      throw new FileNotFoundException(s"Failed to load file: $path")
+    }
+    val props = new Properties()
+    props.load(Files.newInputStream(path))
+    props
+  }
+
+  def databaseDriver: String = settings.getProperty("database.driver")
+  def databaseConnection: String = settings.getProperty("database.connection")
+  def databaseUsername: String = settings.getProperty("database.username")
+  def databasePassword: String = settings.getProperty("database.password")
+
+  def minimumLatitude: Float = settings.getProperty("location.latitude.min").toFloat
+  def maximumLatitude: Float = settings.getProperty("location.latitude.max").toFloat
+  def minimumLongitude: Float = settings.getProperty("location.longitude.min").toFloat
+  def maximumLongitude: Float = settings.getProperty("location.longitude.max").toFloat
+  def minimumPrice: Int = settings.getProperty("price.min").toInt
+  def maximumPrice: Int = settings.getProperty("price.max").toInt
+
+  def realtorRequestUri: String = settings.getProperty("api.realtor.uri")
+  def mongoHouseRequestUri: String = settings.getProperty("api.mongohouse.uri")
+  def houseSigmaRequestUri: String = settings.getProperty("api.housesigma.uri")
+
   val commandLineDateFormat: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE
-
-  val databaseDriver = "org.h2.Driver"
-  val databaseConnection = "jdbc:h2:tcp://localhost/~/test"
-  val databaseUsername = "sa"
-  val databasePassword = ""
-
-  val minimumLatitude: Float = 43.62966297767042f
-  val maximumLatitude: Float = 43.68188782800465f
-  val minimumLongitude: Float = -79.43675788630219f
-  val maximumLongitude: Float = -79.34079917658539f
-  val minimumPrice: Int = 400000
-  val maximumPrice: Int = 900000
-
-  val realtorRequestUri = "http://api2.realtor.ca/Listing.svc/PropertySearch_Post"
-
-  val mongoHouseRequestUri = "http://mongohouse.com/api/reports"
   val mongoHouseRequestDateFormat: String = "MM/dd/yyyy"
   val mongoHouseResponseDateFormats: Array[String] = Array("MM/dd/yyyy", "MM/d/yyyy", "M/d/yyyy", "M/dd/yyyy")
 
-  val houseSigmaRequestUri = "http://housesigma.com/bkv2/api/search/mapsearch/sold"
+  def reportDirectory: String = settings.getProperty("report.directory")
+  def reportFilePattern: String = settings.getProperty("report.filePattern")
+
 }
