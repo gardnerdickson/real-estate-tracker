@@ -55,11 +55,11 @@ class RealtorUrlEncodedFormRequest(uri: URI, parameters: List[NameValuePair]) ex
       def requestNextPage() = {
         logger.debug(s"Requesting page $nextPage")
         val response = HttpClient.urlEncodedPost[RealtorResponse](uri, new BasicNameValuePair("CurrentPage", nextPage.toString)::parameters)
-        logger.debug(s"Got ${response.Results.length} records.")
+        logger.debug(s"Got ${response.results.length} records.")
 
         nextPage += 1
         currentIndex = 0
-        response.Results
+        response.results
       }
 
       if (nextPage == 1 || currentIndex >= currentItems.length) {

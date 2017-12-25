@@ -1,5 +1,6 @@
 package com.realestatetracker.request
 
+import com.realestatetracker.config.Config
 import com.realestatetracker.entity.{HouseSigmaRequest, HouseSigmaResponse, HouseSigmaSoldRecord}
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.http.client.utils.URIBuilder
@@ -14,9 +15,7 @@ class HouseSigmaResource {
 }
 
 object SoldPropertiesRequestBuilder {
-  private val URI = new URIBuilder("http://housesigma.com")
-    .setPath("/bkv2/api/search/mapsearch/sold")
-    .build()
+  private val URI = new URIBuilder(Config.houseSigmaRequestUri).build()
 }
 
 class SoldPropertiesRequestBuilder extends PostRequestBuilder[Array[HouseSigmaSoldRecord], HouseSigmaRequest] with LazyLogging {

@@ -11,68 +11,106 @@ trait HttpEntity {
  */
 
 case class RealtorResponse(
-  ErrorCode: RealtorErrorCode,
-  Paging: RealtorPaging,
-  Results: Array[RealtorResult]
+  @JsonProperty("ErrorCode")
+  errorCode: RealtorErrorCode,
+  @JsonProperty("Paging")
+  paging: RealtorPaging,
+  @JsonProperty("Results")
+  results: Array[RealtorResult]
 ) extends HttpEntity
 
 case class RealtorErrorCode(
-  Id: Int,
-  Description: String,
-  Status: String
+  @JsonProperty("Id")
+  id: Int,
+  @JsonProperty("Description")
+  description: String,
+  @JsonProperty("Status")
+  status: String
 ) extends HttpEntity
 
 case class RealtorPaging(
-  RecordsPerPage: Int,
-  CurrentPage: Int,
-  TotalRecords: Int,
-  MaxRecords: Int,
-  TotalPages: Int,
-  RecordsShowing: Int,
-  Pins: Int
+  @JsonProperty("RecordsPerPage")
+  recordsPerPage: Int,
+  @JsonProperty("CurrentPage")
+  currentPage: Int,
+  @JsonProperty("TotalRecords")
+  totalRecords: Int,
+  @JsonProperty("MaxRecords")
+  maxRecords: Int,
+  @JsonProperty("TotalPages")
+  totalPages: Int,
+  @JsonProperty("RecordsShowing")
+  recordsShowing: Int,
+  @JsonProperty("Pins")
+  pins: Int
 ) extends HttpEntity
 
 case class RealtorResult(
-  Id: Int,
-  MlsNumber: String,
-  PublicRemarks: String,
-  Building: Building,
-  Individual: Array[Individual],
-  Property: Property,
-  PostalCode: String,
-  StatusId: Int
+  @JsonProperty("Id")
+  id: Int,
+  @JsonProperty("MlsNumber")
+  mlsNumber: String,
+  @JsonProperty("PublicRemarks")
+  publicRemarks: String,
+  @JsonProperty("Building")
+  building: Building,
+  @JsonProperty("Individual")
+  individual: Array[Individual],
+  @JsonProperty("Property")
+  property: Property,
+  @JsonProperty("PostalCode")
+  postalCode: String,
+  @JsonProperty("StatusId")
+  statusId: Int
 ) extends HttpEntity
 
 case class Building(
-  BathroomTotal: String,
-  Bedrooms: String,
-  Type: String
+  @JsonProperty("BathroomTotal")
+  bathroomTotal: String,
+  @JsonProperty("Bedrooms")
+  bedrooms: String,
+  @JsonProperty("Type")
+  buildingType: String
 ) extends HttpEntity
 
 case class Individual(
-  IndividualID: Int,
-  Name: String,
-  Organization: Organization
+  @JsonProperty("IndividualID")
+  individualID: Int,
+  @JsonProperty("Name")
+  name: String,
+  @JsonProperty("Organization")
+  organization: Organization
 ) extends HttpEntity
 
 case class Organization(
-  OrganizationID: Int,
-  Name: String,
-  Designation: String,
+  @JsonProperty("OrganizationID")
+  organizationID: Int,
+  @JsonProperty("Name")
+  name: String,
+  @JsonProperty("Designation")
+  designation: String,
 ) extends HttpEntity
 
 case class Property(
-  Price: String,
-  Type: String,
-  Address: Address,
-  TypeId: String,
-  OwnershipType: String
+  @JsonProperty("Price")
+  price: String,
+  @JsonProperty("Type")
+  propertyType: String,
+  @JsonProperty("Address")
+  address: Address,
+  @JsonProperty("TypeId")
+  typeId: String,
+  @JsonProperty("OwnershipType")
+  ownershipType: String
 ) extends HttpEntity
 
 case class Address(
-  AddressText: String,
-  Longitude: Float,
-  Latitude: Float
+  @JsonProperty("AddressText")
+  addressText: String,
+  @JsonProperty("Longitude")
+  longitude: Float,
+  @JsonProperty("Latitude")
+  latitude: Float
 ) extends HttpEntity
 
 
@@ -82,13 +120,19 @@ case class Address(
 
 case class HouseSigmaRequest(
   lang: String,
-  house_type: String,
+  @JsonProperty("house_type")
+  houseType: String,
   days: Int,
-  bedroom_range: Array[Int],
-  price_min: Int,
-  price_max: Int,
-  bathroom_min: Int,
-  garage_min: Int,
+  @JsonProperty("bedroom_range")
+  bedroomRange: Array[Int],
+  @JsonProperty("price_min")
+  minPrice: Int,
+  @JsonProperty("price_max")
+  maxPrice: Int,
+  @JsonProperty("bathroom_min")
+  minBathrooms: Int,
+  @JsonProperty("garage_min")
+  minGarages: Int,
   lat1: Float,
   lon1: Float,
   lat2: Float,
@@ -106,12 +150,14 @@ case class HouseSigmaData(
 ) extends HttpEntity
 
 case class HouseSigmaSoldRecord(
-  ml_num: String,
+  @JsonProperty("ml_num")
+  mlsNumber: String,
   lat: Float,
   lng: Float,
   price: String,
   sold: Int,
-  hash_id: String
+  @JsonProperty("hash_id")
+  hashId: String
 ) extends HttpEntity
 
 
@@ -119,20 +165,19 @@ case class HouseSigmaSoldRecord(
   Mongo House (mongohouse.com)
  */
 
-// TODO(gdickson): fill this out
 case class MongoHouseResponse(
   @JsonProperty("_id")
   mongoId: String,
   @JsonProperty("DOM")
   dom: Int,
+  @JsonProperty("_List")
+  listedPrice: Int,
   @JsonProperty("_Sold")
   soldPrice: Int,
   @JsonProperty("Sold Date")
   soldDate: String,
   @JsonProperty("Contract Date")
   contractDate: String,
-  @JsonProperty("_List")
-  listedPrice: Int,
   @JsonProperty("MLS#")
   mlsNumber: String,
 ) extends HttpEntity

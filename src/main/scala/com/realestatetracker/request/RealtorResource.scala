@@ -1,5 +1,6 @@
 package com.realestatetracker.request
 
+import com.realestatetracker.config.Config
 import com.realestatetracker.entity.RealtorResult
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.http.client.utils.URIBuilder
@@ -15,9 +16,7 @@ class RealtorResource {
 
 
 object RealtorPropertiesRequestBuilder {
-  private val URI = new URIBuilder("https://api2.realtor.ca")
-    .setPath("/Listing.svc/PropertySearch_Post")
-    .build()
+  private val URI = new URIBuilder(Config.realtorRequestUri).build()
 }
 
 class RealtorPropertiesRequestBuilder extends PagedPostRequestBuilder[RealtorResult] with LazyLogging {

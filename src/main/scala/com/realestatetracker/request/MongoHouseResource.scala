@@ -3,6 +3,7 @@ package com.realestatetracker.request
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
+import com.realestatetracker.config.Config
 import com.realestatetracker.entity.MongoHouseResponse
 import org.apache.http.client.utils.URIBuilder
 
@@ -15,10 +16,6 @@ class MongoHouseResource {
   }
 }
 
-object SoldPropertyReportRequestBuilder {
-  private val URI = "https://mongohouse.com/api/reports"
-}
-
 class SoldPropertyReportRequestBuilder extends GetRequestBuilder[Array[MongoHouseResponse]] {
 
   private var date: Option[LocalDate] = None
@@ -27,8 +24,8 @@ class SoldPropertyReportRequestBuilder extends GetRequestBuilder[Array[MongoHous
   override def build: GetRequest[Array[MongoHouseResponse]] = {
     tryValidate()
 
-    val uri = new URIBuilder(SoldPropertyReportRequestBuilder.URI)
-      .setParameter("date", DateTimeFormatter.ofPattern("MM/dd/yyyy").format(date.get))
+    val uri = new URIBuilder(Config.mongoHouseRequestUri)
+      .setParameter("date", DateTimeFormatter.ofPattern(Config.mongoHouseRequestDateFormat).format(date.get))
       .setParameter("city", city.get)
       .build()
 
