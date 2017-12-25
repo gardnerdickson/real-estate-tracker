@@ -1,9 +1,12 @@
 package com.realestatetracker.repository
 
-import java.sql.{Date, DriverManager}
+import java.sql.{Date, DriverManager, ResultSet}
+import java.time.LocalDate
 
 import com.realestatetracker.config.Config
 import com.realestatetracker.entity.MongoSoldProperty
+
+import scala.collection.mutable.ListBuffer
 
 
 object MongoSoldPropertyRepository {
@@ -14,6 +17,29 @@ object MongoSoldPropertyRepository {
       |values
       |(?, ?, ?, ?, ?, ?, ?)
     """.stripMargin
+
+  private val queryBySoldDateStatement =
+    """
+      |select * from mongo_sold_property
+      |where date_sold = ?
+    """.stripMargin
+
+  private def convertResultSet(resultSet: ResultSet): List[MongoSoldProperty] = {
+    val listBuffer = new ListBuffer[MongoSoldProperty]
+    while (resultSet.next()) {
+      listBuffer.append(MongoSoldProperty(
+        resultSet.getString("mongo_id"),
+        resultSet.getString("mls_number"),
+        resultSet.getInt("days_on_market"),
+        resultSet.getDate("date_listed").toLocalDate,
+        resultSet.getInt("listed_price"),
+        resultSet.getDate("date_sold").toLocalDate,
+        resultSet.getInt("sold_price")
+      ))
+    }
+    listBuffer.toList
+  }
+
 }
 
 class MongoSoldPropertyRepository {
@@ -40,6 +66,19 @@ class MongoSoldPropertyRepository {
     preparedStatement.clearBatch()
     connection.commit()
     connection.close()
+  }
+
+  def queryBySoldDate(date: LocalDate): List[MongoSoldProperty] = {
+    val connection = DriverManager.getConnection(Config.databaseConnection, Config.databaseUsername, Config.databasePassword)
+
+    val preparedStatement = connection.prepareStatement(MongoSoldPropertyRepository.queryBySoldDateStatement)
+    preparedStatement.setDate(1, Date.valueOf(date))
+    val resultSet = preparedStatement.executeQuery()
+    val soldProperties = MongoSoldPropertyRepository.convertResultSet(resultSet)
+
+    connection.close()
+
+    soldProperties
   }
 
 

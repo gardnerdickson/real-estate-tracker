@@ -2,6 +2,7 @@ package com.realestatetracker.config
 
 import java.io.FileNotFoundException
 import java.nio.file.{Files, Paths}
+import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Properties
 
@@ -42,6 +43,8 @@ object Config {
   val mongoHouseResponseDateFormats: Array[String] = Array("MM/dd/yyyy", "MM/d/yyyy", "M/d/yyyy", "M/dd/yyyy")
 
   def reportDirectory: String = settings.getProperty("report.directory")
-  def reportFilePattern: String = settings.getProperty("report.filePattern")
+  def reportFile(date: LocalDate): String = {
+    settings.getProperty("report.filePattern").replace("${DATE}", date.toString)
+  }
 
 }

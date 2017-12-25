@@ -1,5 +1,6 @@
 package com.realestatetracker.entity
 
+import java.sql.ResultSet
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -63,6 +64,12 @@ object PropertyListing {
     realtorResults.map(PropertyListing.apply)
   }
 }
+
+case class PriceChangePropertyListing(
+  mlsNumber: String,
+  oldPrice: Int,
+  newPrice: Int
+) extends ApplicationEntity
 
 
 case class SigmaSoldProperty(
