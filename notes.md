@@ -40,7 +40,9 @@ top left:43.677901, -79.443024
 
 bottom right: 43.633278, -79.342944
 
-Minimum longitude:
-Maximum longitude:
-Minimum latitude:
-Maximum latitude:
+
+### TODOS
+
+- Powershell script
+- Run powershell script on a daily schedule
+- logging pass
