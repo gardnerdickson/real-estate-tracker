@@ -29,14 +29,17 @@ object Main extends LazyLogging {
       .maximumPrice(Config.maximumPrice)
       .build
 
-    val realtorResults = realtorRequest.all()
+    val realtorResults = realtorRequest.post()
     logger.info(s"Found ${realtorResults.length} property listings.")
     val propertyListings = PropertyListing(realtorResults)
 
-    logger.info("Adding realtor listings to the database.")
-    val propertyListingRepo = new PropertyListingRepository
-    propertyListingRepo.insertPropertyListings(propertyListings)
-    logger.info("Done adding realtor listings to the database.")
+    // DEBUG
+    propertyListings.foreach(println)
+
+//    logger.info("Adding realtor listings to the database.")
+//    val propertyListingRepo = new PropertyListingRepository
+//    propertyListingRepo.insertPropertyListings(propertyListings)
+//    logger.info("Done adding realtor listings to the database.")
   }
 
   private def downloadSigmaHouseProperties(): Unit = {
@@ -56,10 +59,13 @@ object Main extends LazyLogging {
     logger.info("Got sold properties results from housesigma.com: " + houseSigmaResult.length)
     val houseSigmaProperties = SigmaSoldProperty(houseSigmaResult)
 
-    logger.info("Adding housesigma properties to the database.")
-    val sigmaRepository = new SigmaSoldPropertyRepository
-    sigmaRepository.insertSoldProperties(houseSigmaProperties)
-    logger.info("Done adding housesigma properties to the database.")
+    // DEBUG
+    houseSigmaProperties.foreach(println)
+
+//    logger.info("Adding housesigma properties to the database.")
+//    val sigmaRepository = new SigmaSoldPropertyRepository
+//    sigmaRepository.insertSoldProperties(houseSigmaProperties)
+//    logger.info("Done adding housesigma properties to the database.")
   }
 
   private def downloadMongoHouseProperties(reportDate: LocalDate): Unit = {
@@ -73,9 +79,12 @@ object Main extends LazyLogging {
     logger.info(s"Got sold properties from mongohouse.com. ${mongoHouseRecords.length} total records.")
     val mongoSoldProperties = MongoSoldProperty(mongoHouseRecords)
 
-    logger.info("Adding mongohouse properties to the database.")
-    val mongoRepository = new MongoSoldPropertyRepository
-    mongoRepository.insertSoldProperties(mongoSoldProperties)
-    logger.info("Done adding mongohouse properties to the database.")
+    // DEBUG
+    mongoSoldProperties.foreach(println)
+
+//    logger.info("Adding mongohouse properties to the database.")
+//    val mongoRepository = new MongoSoldPropertyRepository
+//    mongoRepository.insertSoldProperties(mongoSoldProperties)
+//    logger.info("Done adding mongohouse properties to the database.")
   }
 }

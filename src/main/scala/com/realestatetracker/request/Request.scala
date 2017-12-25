@@ -22,21 +22,15 @@ trait PostRequest[T, K] {
   def post(): T
 }
 
-trait PagedPostRequest[T] extends Iterable[T] {
-  def all(): List[T]
-}
-
 trait PostRequestBuilder[T, K] {
   def build: PostRequest[T, K]
 }
 
-trait PagedPostRequestBuilder[T] {
-  def build: PagedPostRequest[T]
-}
 
+class RealtorUrlEncodedFormRequest(uri: URI, parameters: List[NameValuePair])
+  extends PostRequest[List[RealtorResult], Unit] with Iterable[RealtorResult]{
 
-class RealtorUrlEncodedFormRequest(uri: URI, parameters: List[NameValuePair]) extends PagedPostRequest[RealtorResult] {
-  override def all(): List[RealtorResult] = {
+  override def post(): List[RealtorResult] = {
     iterator.toList
   }
 
@@ -99,10 +93,10 @@ class HouseSigmaPostRequest(uri: URI, headers: Seq[(String, String)], body: Hous
 }
 
 
-class MongoHouseGetRequest(uri: URI, headers: Seq[(String, String)]) extends GetRequest[Array[MongoHouseResponse]] {
+class MongoHouseGetRequest(uri: URI) extends GetRequest[Array[MongoHouseResponse]] {
 
   override def get: Array[MongoHouseResponse] = {
-    HttpClient.get[Array[MongoHouseResponse]](uri, headers)
+    HttpClient.get[Array[MongoHouseResponse]](uri, Seq())
   }
 }
 

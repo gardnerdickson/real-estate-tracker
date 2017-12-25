@@ -19,7 +19,7 @@ object RealtorPropertiesRequestBuilder {
   private val URI = new URIBuilder(Config.realtorRequestUri).build()
 }
 
-class RealtorPropertiesRequestBuilder extends PagedPostRequestBuilder[RealtorResult] with LazyLogging {
+class RealtorPropertiesRequestBuilder extends PostRequestBuilder[List[RealtorResult], Unit] with LazyLogging {
 
   private var minimumPrice: Option[Int] = None
   private var maximumPrice: Option[Int] = None
@@ -28,7 +28,7 @@ class RealtorPropertiesRequestBuilder extends PagedPostRequestBuilder[RealtorRes
   private var minimumLatitude: Option[Float] = None
   private var maximumLatitude: Option[Float] = None
 
-  override def build: PagedPostRequest[RealtorResult] = {
+  override def build: PostRequest[List[RealtorResult], Unit] = {
 
     tryValidate()
 

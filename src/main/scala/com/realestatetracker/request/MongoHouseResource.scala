@@ -29,7 +29,7 @@ class SoldPropertyReportRequestBuilder extends GetRequestBuilder[Array[MongoHous
       .setParameter("city", city.get)
       .build()
 
-    new MongoHouseGetRequest(uri, Seq())
+    new MongoHouseGetRequest(uri)
   }
 
   def date(date: LocalDate): SoldPropertyReportRequestBuilder = {
