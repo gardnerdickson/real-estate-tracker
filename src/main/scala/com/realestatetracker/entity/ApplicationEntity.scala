@@ -1,6 +1,5 @@
 package com.realestatetracker.entity
 
-import java.sql.ResultSet
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -13,7 +12,22 @@ trait ApplicationEntity {
 
 }
 
+case class Execution(
+  executionId: Long,
+  started: LocalDate,
+  ended: LocalDate,
+  status: String,
+  date: LocalDate,
+  minimumPrice: Int,
+  maximumPrice: Int,
+  minimumLatitude: Float,
+  maximumLatitude: Float,
+  minimumLongitude: Float,
+  maximumLongitude: Float,
+) extends ApplicationEntity
+
 case class PropertyListing(
+  executionId: Long,
   realtorId: Long,
   mlsNumber: String,
   description: String,
@@ -29,7 +43,7 @@ case class PropertyListing(
 
 object PropertyListing {
 
-  def apply(realtorResult: RealtorResult): PropertyListing = {
+  def apply(executionId: Long, realtorResult: RealtorResult): PropertyListing = {
 
     def normalizeAndConvertPrice(price: String): Int = {
       price
@@ -46,6 +60,7 @@ object PropertyListing {
     }
 
     new PropertyListing(
+      executionId,
       realtorResult.id,
       realtorResult.mlsNumber,
       normalizeDescription(realtorResult.publicRemarks),
@@ -60,8 +75,8 @@ object PropertyListing {
     )
   }
 
-  def apply(realtorResults: List[RealtorResult]): List[PropertyListing] = {
-    realtorResults.map(PropertyListing.apply)
+  def apply(executionId: Long, realtorResults: List[RealtorResult]): List[PropertyListing] = {
+    realtorResults.map(result => PropertyListing.apply(executionId, result))
   }
 }
 
@@ -73,6 +88,7 @@ case class PriceChangePropertyListing(
 
 
 case class SigmaSoldProperty(
+  executionId: Long,
   sigmaId: String,
   mlsNumber: String,
   latitude: Float,
@@ -83,8 +99,9 @@ case class SigmaSoldProperty(
 
 object SigmaSoldProperty {
 
-  def apply(houseSigmaSoldRecord: HouseSigmaSoldRecord): SigmaSoldProperty = {
+  def apply(executionId: Long, houseSigmaSoldRecord: HouseSigmaSoldRecord): SigmaSoldProperty = {
     new SigmaSoldProperty(
+      executionId,
       houseSigmaSoldRecord.hashId,
       houseSigmaSoldRecord.mlsNumber,
       houseSigmaSoldRecord.lat,
@@ -94,14 +111,15 @@ object SigmaSoldProperty {
     )
   }
 
-  def apply(houseSigmaSoldRecords: Array[HouseSigmaSoldRecord]): Array[SigmaSoldProperty] = {
-    houseSigmaSoldRecords.map(SigmaSoldProperty.apply)
+  def apply(executionId: Long, houseSigmaSoldRecords: Array[HouseSigmaSoldRecord]): Array[SigmaSoldProperty] = {
+    houseSigmaSoldRecords.map(record => SigmaSoldProperty.apply(executionId, record))
   }
 
 }
 
 
 case class MongoSoldProperty(
+  executionId: Long,
   mongoId: String,
   mlsNumber: String,
   daysOnMarket: Int,
@@ -127,8 +145,9 @@ object MongoSoldProperty {
     localDate
   }
 
-  def apply(mongoHouseResponse: MongoHouseResponse): MongoSoldProperty = {
+  def apply(executionId: Long, mongoHouseResponse: MongoHouseResponse): MongoSoldProperty = {
     new MongoSoldProperty(
+      executionId,
       mongoHouseResponse.mongoId,
       mongoHouseResponse.mlsNumber,
       mongoHouseResponse.dom,
@@ -139,8 +158,8 @@ object MongoSoldProperty {
     )
   }
 
-  def apply(mongoHouseResponseRecords: Array[MongoHouseResponse]): Array[MongoSoldProperty] = {
-    mongoHouseResponseRecords.map(MongoSoldProperty.apply)
+  def apply(executionId: Long, mongoHouseResponseRecords: Array[MongoHouseResponse]): Array[MongoSoldProperty] = {
+    mongoHouseResponseRecords.map(record => MongoSoldProperty.apply(executionId, record))
   }
 
 }

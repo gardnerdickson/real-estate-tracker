@@ -13,9 +13,9 @@ object MongoSoldPropertyRepository {
   private val insertStatement =
     """
       |insert into mongo_sold_property
-      |(mongo_id, mls_number, days_on_market, date_listed, listed_price, date_sold, sold_price)
+      |(au_execution_id, mongo_id, mls_number, days_on_market, date_listed, listed_price, date_sold, sold_price)
       |values
-      |(?, ?, ?, ?, ?, ?, ?)
+      |(?, ?, ?, ?, ?, ?, ?, ?)
     """.stripMargin
 
   private val queryBySoldDateStatement =
@@ -28,6 +28,7 @@ object MongoSoldPropertyRepository {
     val listBuffer = new ListBuffer[MongoSoldProperty]
     while (resultSet.next()) {
       listBuffer.append(MongoSoldProperty(
+        resultSet.getLong("au_execution_id"),
         resultSet.getString("mongo_id"),
         resultSet.getString("mls_number"),
         resultSet.getInt("days_on_market"),
@@ -52,13 +53,14 @@ class MongoSoldPropertyRepository {
 
     val preparedStatement = connection.prepareStatement(MongoSoldPropertyRepository.insertStatement)
     for (property <- soldProperties) {
-      preparedStatement.setString(1, property.mongoId)
-      preparedStatement.setString(2, property.mlsNumber)
-      preparedStatement.setInt(3, property.daysOnMarket)
-      preparedStatement.setDate(4, Date.valueOf(property.dateListed))
-      preparedStatement.setInt(5, property.listedPrice)
-      preparedStatement.setDate(6, Date.valueOf(property.dateSold))
-      preparedStatement.setInt(7, property.soldPrice)
+      preparedStatement.setLong(1, property.executionId)
+      preparedStatement.setString(2, property.mongoId)
+      preparedStatement.setString(3, property.mlsNumber)
+      preparedStatement.setInt(4, property.daysOnMarket)
+      preparedStatement.setDate(5, Date.valueOf(property.dateListed))
+      preparedStatement.setInt(6, property.listedPrice)
+      preparedStatement.setDate(7, Date.valueOf(property.dateSold))
+      preparedStatement.setInt(8, property.soldPrice)
       preparedStatement.addBatch()
     }
 

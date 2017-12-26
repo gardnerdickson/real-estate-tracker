@@ -49,3 +49,6 @@ bottom right: 43.633278, -79.342944
 - Config directory
   - JVM argument
   - Contains config file
+- Email reports
+  - Password encryption/decryption?
+- Execution logging

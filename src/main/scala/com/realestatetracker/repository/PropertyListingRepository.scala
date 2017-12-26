@@ -13,9 +13,9 @@ object PropertyListingRepository {
   private val insertStatement =
     """
       |insert into realtor_property_listing
-      |(realtor_id, mls_number, description, num_bathrooms, num_bedrooms, building_type, price, address, longitude, latitude, postal_code)
+      |(au_execution_id, realtor_id, mls_number, description, num_bathrooms, num_bedrooms, building_type, price, address, longitude, latitude, postal_code)
       |values
-      |(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      |(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """.stripMargin
 
   private val queryByTimestampStatement =
@@ -39,6 +39,7 @@ object PropertyListingRepository {
     val listBuffer = new ListBuffer[PropertyListing]
     while (resultSet.next()) {
       listBuffer.append(PropertyListing(
+        resultSet.getLong("au_execution_id"),
         resultSet.getLong("realtor_id"),
         resultSet.getString("mls_number"),
         resultSet.getString("description"),
@@ -75,17 +76,18 @@ class PropertyListingRepository {
 
     val preparedStatement = connection.prepareStatement(PropertyListingRepository.insertStatement)
     for (propertyListing <- propertyListings) {
-      preparedStatement.setLong(1, propertyListing.realtorId)
-      preparedStatement.setString(2, propertyListing.mlsNumber)
-      preparedStatement.setString(3, propertyListing.description)
-      preparedStatement.setString(4, propertyListing.numberOfBathrooms)
-      preparedStatement.setString(5, propertyListing.numberOfBedrooms)
-      preparedStatement.setString(6, propertyListing.buildingType)
-      preparedStatement.setInt(7, propertyListing.price)
-      preparedStatement.setString(8, propertyListing.address)
-      preparedStatement.setFloat(9, propertyListing.longitude)
-      preparedStatement.setFloat(10, propertyListing.latitude)
-      preparedStatement.setString(11, propertyListing.postalCode)
+      preparedStatement.setLong(1, propertyListing.executionId)
+      preparedStatement.setLong(2, propertyListing.realtorId)
+      preparedStatement.setString(3, propertyListing.mlsNumber)
+      preparedStatement.setString(4, propertyListing.description)
+      preparedStatement.setString(5, propertyListing.numberOfBathrooms)
+      preparedStatement.setString(6, propertyListing.numberOfBedrooms)
+      preparedStatement.setString(7, propertyListing.buildingType)
+      preparedStatement.setInt(8, propertyListing.price)
+      preparedStatement.setString(9, propertyListing.address)
+      preparedStatement.setFloat(10, propertyListing.longitude)
+      preparedStatement.setFloat(11, propertyListing.latitude)
+      preparedStatement.setString(12, propertyListing.postalCode)
       preparedStatement.addBatch()
     }
 
