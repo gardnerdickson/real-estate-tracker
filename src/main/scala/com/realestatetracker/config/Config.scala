@@ -47,4 +47,9 @@ object Config {
     settings.getProperty("report.filePattern").replace("${DATE}", date.toString)
   }
 
+  def emailFromAddress: String = settings.getProperty("email.fromAddress")
+  def emailRecipients: Array[String] = settings.getProperty("email.toAddresses").split(",")
+  def emailUsername: String = settings.getProperty("email.username")
+  def emailPassword: String = settings.getProperty("email.password")
+
 }

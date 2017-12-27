@@ -1,15 +1,17 @@
 package com.realestatetracker.main
 
+import java.nio.file.Paths
 import java.time.LocalDate
 
 import com.realestatetracker.config.Config
 import com.realestatetracker.entity.{MongoSoldProperty, PropertyListing, SigmaSoldProperty}
+import com.realestatetracker.report.{GmailReportMailer, MongoSoldPropertiesReport, RealtorChangedPricesReport, ReportWriter}
 import com.realestatetracker.repository.{ExecutionRepository, MongoSoldPropertyRepository, PropertyListingRepository, SigmaSoldPropertyRepository}
 import com.realestatetracker.request.{HouseSigmaHouseType, HouseSigmaResource, MongoHouseResource, RealtorResource}
 import com.typesafe.scalalogging.LazyLogging
 
 
-object PropertyDownloader extends LazyLogging {
+object Main extends LazyLogging {
 
   def main(args: Array[String]): Unit = {
 
@@ -18,9 +20,14 @@ object PropertyDownloader extends LazyLogging {
     val executionId = executionRepository.createExecutionLog(date)
 
     try {
-      downloadRealtorProperties(executionId)
-      downloadMongoHouseProperties(executionId, LocalDate.parse(args(0), Config.commandLineDateFormat))
+      // Download property data
+//      downloadRealtorProperties(executionId)
+//      downloadMongoHouseProperties(executionId, LocalDate.parse(args(0), Config.commandLineDateFormat))
       //      downloadSigmaHouseProperties(executionId)
+
+      // Generate and email reports
+      generateAndSendReport(date)
+
       executionRepository.updateExecution(executionId, "COMPLETE")
     } catch {
       case e: Exception =>
@@ -99,5 +106,18 @@ object PropertyDownloader extends LazyLogging {
     val sigmaRepository = new SigmaSoldPropertyRepository
     sigmaRepository.insertSoldProperties(houseSigmaProperties)
     logger.info("Done adding housesigma properties to the database.")
+  }
+
+  private def generateAndSendReport(date: LocalDate): Unit = {
+    val reportWriter = new ReportWriter(
+      new RealtorChangedPricesReport(date),
+      new MongoSoldPropertiesReport(date)
+    )
+
+    val reportFile = Paths.get(Config.reportDirectory, Config.reportFile(date))
+    reportWriter.write(reportFile)
+
+    val reportMailer = new GmailReportMailer(Config.emailUsername, Config.emailPassword)
+    reportMailer.sendEmail("Test", Config.emailFromAddress, Config.emailRecipients, "This is a test")
   }
 }
