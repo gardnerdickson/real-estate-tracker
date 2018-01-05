@@ -51,4 +51,5 @@ bottom right: 43.633278, -79.342944
   - Contains config file
 - Email reports
   - Password encryption/decryption?
-- Execution logging
+- Execution logging (two run types -> download, generate report)
+- Store google credentials on file system

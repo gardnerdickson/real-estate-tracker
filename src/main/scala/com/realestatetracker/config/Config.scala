@@ -8,18 +8,22 @@ import java.util.Properties
 
 object Config {
 
+  private val configFileName = "real-estate-tracker.properties"
+  private val configFileProperty = "config.directory"
+
   private val settings = {
-    val configFile = System.getProperty("config.file")
-    if (configFile == null) {
-      throw new IllegalArgumentException("JVM argument 'config.file' not set.")
-    }
-    val path = Paths.get(configFile)
+    val path = Paths.get(configDirectory, configFileName)
     if (Files.notExists(path)) {
       throw new FileNotFoundException(s"Failed to load file: $path")
     }
     val props = new Properties()
     props.load(Files.newInputStream(path))
     props
+  }
+
+  def configDirectory: String = Option(System.getProperty(configFileProperty)) match {
+    case Some(directory) => directory
+    case _ => throw new IllegalArgumentException(s"JVM argument $configFileProperty not set.")
   }
 
   def databaseDriver: String = settings.getProperty("database.driver")
@@ -51,5 +55,9 @@ object Config {
   def emailRecipients: Array[String] = settings.getProperty("email.toAddresses").split(",")
   def emailUsername: String = settings.getProperty("email.username")
   def emailPassword: String = settings.getProperty("email.password")
+
+  def googleApplicationName: String = settings.getProperty("google.credential.applicationName")
+  def googleSecretFile: String = settings.getProperty("google.credential.oauth.secret")
+  def googleCredentialDataStore: String = settings.getProperty("google.credential.dataStore")
 
 }

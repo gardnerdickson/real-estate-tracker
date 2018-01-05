@@ -15,26 +15,27 @@ object Main extends LazyLogging {
 
   def main(args: Array[String]): Unit = {
 
-    val date = LocalDate.parse(args(0), Config.commandLineDateFormat)
-    val executionRepository = new ExecutionRepository()
-    val executionId = executionRepository.createExecutionLog(date)
+//    val date = LocalDate.parse(args(0), Config.commandLineDateFormat)
+//    val executionRepository = new ExecutionRepository()
+//    val executionId = executionRepository.createExecutionLog(date)
 
-    try {
+//    try {
       // Download property data
 //      downloadRealtorProperties(executionId)
 //      downloadMongoHouseProperties(executionId, LocalDate.parse(args(0), Config.commandLineDateFormat))
       //      downloadSigmaHouseProperties(executionId)
 
       // Generate and email reports
-      generateAndSendReport(date)
+//      generateAndSendReport(date)
+    generateAndSendReport(LocalDate.now())
 
-      executionRepository.updateExecution(executionId, "COMPLETE")
-    } catch {
-      case e: Exception =>
-        logger.error("Unhandled exception caught. Setting execution to 'FAILED'")
-        executionRepository.updateExecution(executionId, "FAILED")
-        throw e
-    }
+//      executionRepository.updateExecution(executionId, "COMPLETE")
+//    } catch {
+//      case e: Exception =>
+//        logger.error("Unhandled exception caught. Setting execution to 'FAILED'")
+//        executionRepository.updateExecution(executionId, "FAILED")
+//        throw e
+//    }
   }
 
 
@@ -109,15 +110,21 @@ object Main extends LazyLogging {
   }
 
   private def generateAndSendReport(date: LocalDate): Unit = {
-    val reportWriter = new ReportWriter(
-      new RealtorChangedPricesReport(date),
-      new MongoSoldPropertiesReport(date)
+//    val reportWriter = new ReportWriter(
+//      new RealtorChangedPricesReport(date),
+//      new MongoSoldPropertiesReport(date)
+//    )
+//
+//    val reportFile = Paths.get(Config.reportDirectory, Config.reportFile(date))
+//    reportWriter.write(reportFile)
+
+    val reportMailer = new GmailReportMailer(
+      Config.emailUsername,
+      Config.emailPassword,
+      Config.googleApplicationName,
+      Paths.get(Config.configDirectory, Config.googleSecretFile),
+      Paths.get(Config.configDirectory, Config.googleCredentialDataStore)
     )
-
-    val reportFile = Paths.get(Config.reportDirectory, Config.reportFile(date))
-    reportWriter.write(reportFile)
-
-    val reportMailer = new GmailReportMailer(Config.emailUsername, Config.emailPassword)
-    reportMailer.sendEmail("Test", Config.emailFromAddress, Config.emailRecipients, "This is a test")
+    reportMailer.sendEmail("Test", Config.emailFromAddress, Config.emailRecipients, "This is another test")
   }
 }
