@@ -24,14 +24,21 @@ object PropertyListingRepository {
       |where au_created_timestamp like ?
     """.stripMargin
 
+  private val queryByExecutionId =
+    """
+      |select * from realtor_property_listing
+      |where au_execution_id = ?
+    """.stripMargin
+
   private val changedPriceStatement =
     """
-      |select old.mls_number, old.price, new.price from realtor_property_listing old
+      |select old.mls_number as mls_number, old.price as old_price, new.price as new_price
+      |from realtor_property_listing old
       |inner join realtor_property_listing new
       |on old.mls_number = new.mls_number
       |where 1=1
-      |and old.au_created_timestamp like ?
-      |and new.au_created_timestamp like ?
+      |and old.au_execution_id = ?
+      |and new.au_execution_id = ?
       |and old.price != new.price
     """.stripMargin
 
@@ -59,7 +66,7 @@ object PropertyListingRepository {
   private def convertResultSetToPriceChangedProperty(resultSet: ResultSet): List[PriceChangePropertyListing] = {
     val listBuffer = new ListBuffer[PriceChangePropertyListing]
     while (resultSet.next()) {
-      listBuffer.append(PriceChangePropertyListing(resultSet.getString("old.mls_number"), resultSet.getInt("old.price"), resultSet.getInt("new.price")))
+      listBuffer.append(PriceChangePropertyListing(resultSet.getString("mls_number"), resultSet.getInt("old_price"), resultSet.getInt("new_price")))
     }
     listBuffer.toList
   }
@@ -107,15 +114,25 @@ class PropertyListingRepository {
     propertyListings
   }
 
-  def queryForChangedPrices(oldDate: LocalDate, newDate: LocalDate): List[PriceChangePropertyListing] = {
+  def queryForChangedPrices(oldExecutionId: Long, newExecutionId: Long): List[PriceChangePropertyListing] = {
     val connection = DriverManager.getConnection(Config.databaseConnection, Config.databaseUsername, Config.databasePassword)
     val preparedStatement = connection.prepareStatement(PropertyListingRepository.changedPriceStatement)
-    preparedStatement.setString(1, s"$oldDate%")
-    preparedStatement.setString(2, s"$newDate%")
+    preparedStatement.setLong(1, oldExecutionId)
+    preparedStatement.setLong(2, newExecutionId)
     val resultSet = preparedStatement.executeQuery()
     val changedProperties = PropertyListingRepository.convertResultSetToPriceChangedProperty(resultSet)
     connection.close()
     changedProperties
+  }
+
+  def queryByExecutionId(executionId: Long): List[PropertyListing] = {
+    val connection = DriverManager.getConnection(Config.databaseConnection, Config.databaseUsername, Config.databasePassword)
+    val preparedStatement = connection.prepareStatement(PropertyListingRepository.changedPriceStatement)
+    preparedStatement.setLong(1, executionId)
+    val resultSet = preparedStatement.executeQuery()
+    val propertyListings = PropertyListingRepository.convertResultSet(resultSet)
+    connection.close()
+    propertyListings
   }
 
 }

@@ -1,41 +1,22 @@
 package com.realestatetracker.main
 
-import java.nio.file.Paths
 import java.time.LocalDate
 
 import com.realestatetracker.config.Config
 import com.realestatetracker.entity.{MongoSoldProperty, PropertyListing, SigmaSoldProperty}
-import com.realestatetracker.report.{GmailReportMailer, MongoSoldPropertiesReport, RealtorChangedPricesReport, ReportWriter}
-import com.realestatetracker.repository.{ExecutionRepository, MongoSoldPropertyRepository, PropertyListingRepository, SigmaSoldPropertyRepository}
-import com.realestatetracker.request.{HouseSigmaHouseType, HouseSigmaResource, MongoHouseResource, RealtorResource}
+import com.realestatetracker.repository.{MongoSoldPropertyRepository, PropertyListingRepository, SigmaSoldPropertyRepository}
+import com.realestatetracker.request._
 import com.typesafe.scalalogging.LazyLogging
 
 
-object Main extends LazyLogging {
+object PropertyDownloader extends LazyLogging {
 
   def main(args: Array[String]): Unit = {
-
-//    val date = LocalDate.parse(args(0), Config.commandLineDateFormat)
-//    val executionRepository = new ExecutionRepository()
-//    val executionId = executionRepository.createExecutionLog(date)
-
-//    try {
-      // Download property data
-//      downloadRealtorProperties(executionId)
-//      downloadMongoHouseProperties(executionId, LocalDate.parse(args(0), Config.commandLineDateFormat))
-      //      downloadSigmaHouseProperties(executionId)
-
-      // Generate and email reports
-//      generateAndSendReport(date)
-    generateAndSendReport(LocalDate.now())
-
-//      executionRepository.updateExecution(executionId, "COMPLETE")
-//    } catch {
-//      case e: Exception =>
-//        logger.error("Unhandled exception caught. Setting execution to 'FAILED'")
-//        executionRepository.updateExecution(executionId, "FAILED")
-//        throw e
-//    }
+    val process = new Process(ProcessType.DOWNLOAD_PROPERTIES, (executionId: Long, date: LocalDate) => {
+      downloadRealtorProperties(executionId)
+//      downloadMongoHouseProperties(executionId, date)
+    })
+    process.run(args)
   }
 
 
@@ -63,7 +44,8 @@ object Main extends LazyLogging {
     logger.info("Done adding realtor listings to the database.")
   }
 
-  private def downloadMongoHouseProperties(executionId: Long, reportDate: LocalDate): Unit = {
+  private def downloadMongoHouseProperties(executionId: Long, date: LocalDate): Unit = {
+    val reportDate = date.minusDays(1)
     val mongoHouseRequest = new MongoHouseResource()
       .soldPropertyReportRequest
       .date(reportDate)
@@ -109,22 +91,4 @@ object Main extends LazyLogging {
     logger.info("Done adding housesigma properties to the database.")
   }
 
-  private def generateAndSendReport(date: LocalDate): Unit = {
-//    val reportWriter = new ReportWriter(
-//      new RealtorChangedPricesReport(date),
-//      new MongoSoldPropertiesReport(date)
-//    )
-//
-//    val reportFile = Paths.get(Config.reportDirectory, Config.reportFile(date))
-//    reportWriter.write(reportFile)
-
-    val reportMailer = new GmailReportMailer(
-      Config.emailUsername,
-      Config.emailPassword,
-      Config.googleApplicationName,
-      Paths.get(Config.configDirectory, Config.googleSecretFile),
-      Paths.get(Config.configDirectory, Config.googleCredentialDataStore)
-    )
-    reportMailer.sendEmail("Test", Config.emailFromAddress, Config.emailRecipients, "This is another test")
-  }
 }

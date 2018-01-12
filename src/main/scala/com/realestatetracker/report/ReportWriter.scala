@@ -8,7 +8,8 @@ class ReportWriter(reports: Report*) {
   def write(path: Path): Unit = {
     val reportBuilder = new StringBuilder()
     reports.foreach(report => reportBuilder.append(report.generate()).append(Report.newLine))
-    Files.write(path, reportBuilder.toString.getBytes(StandardCharsets.UTF_8), StandardOpenOption.TRUNCATE_EXISTING)
-  }
 
+    val openOption = if (Files.exists(path)) StandardOpenOption.TRUNCATE_EXISTING else StandardOpenOption.CREATE
+    Files.write(path, reportBuilder.toString.getBytes(StandardCharsets.UTF_8), openOption)
+  }
 }

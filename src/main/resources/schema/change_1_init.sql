@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS execution (
   au_start_timestamp TIMESTAMP,
   au_end_timestamp   TIMESTAMP,
   au_status          VARCHAR(10), // STARTED, COMPLETE, FAILED
+  au_process_type    VARCHAR(20), // DOWNLOAD_PROPERTIES, GENERATE_REPORT
 
   date               DATE,
   minimum_price      INT,

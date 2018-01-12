@@ -24,6 +24,13 @@ object MongoSoldPropertyRepository {
       |where date_sold = ?
     """.stripMargin
 
+
+  private val queryByExecutionId =
+    """
+      |select * from mongo_sold_property
+      |where au_execution_id = ?
+    """.stripMargin
+
   private def convertResultSet(resultSet: ResultSet): List[MongoSoldProperty] = {
     val listBuffer = new ListBuffer[MongoSoldProperty]
     while (resultSet.next()) {
@@ -80,6 +87,16 @@ class MongoSoldPropertyRepository {
 
     connection.close()
 
+    soldProperties
+  }
+
+  def queryByExecutionId(executionId: Long): List[MongoSoldProperty] = {
+    val connection = DriverManager.getConnection(Config.databaseConnection, Config.databaseUsername, Config.databasePassword)
+    val preparedStatement = connection.prepareStatement(MongoSoldPropertyRepository.queryByExecutionId)
+    preparedStatement.setLong(1, executionId)
+    val resultSet = preparedStatement.executeQuery()
+    val soldProperties = MongoSoldPropertyRepository.convertResultSet(resultSet)
+    connection.close()
     soldProperties
   }
 

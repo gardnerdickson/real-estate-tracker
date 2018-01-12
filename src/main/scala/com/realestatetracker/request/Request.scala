@@ -85,7 +85,9 @@ class HouseSigmaPostRequest(uri: URI, headers: Seq[(String, String)], body: Hous
   extends PostRequest[Array[HouseSigmaSoldRecord], HouseSigmaRequest] with LazyLogging {
 
   override def post(): Array[HouseSigmaSoldRecord] = {
-    logger.debug(s"Requesting sold properties - $body")
+    logger.debug(s"Requesting sold properties.")
+    logger.debug(s"\tURI: $uri")
+    logger.debug(s"\tBody: $body")
     val postRequest = new EntityPostRequest[HouseSigmaResponse, HouseSigmaRequest](uri, headers, body)
     val response = postRequest.post()
     response.data.list
@@ -93,9 +95,11 @@ class HouseSigmaPostRequest(uri: URI, headers: Seq[(String, String)], body: Hous
 }
 
 
-class MongoHouseGetRequest(uri: URI) extends GetRequest[Array[MongoHouseResponse]] {
+class MongoHouseGetRequest(uri: URI) extends GetRequest[Array[MongoHouseResponse]] with LazyLogging {
 
   override def get: Array[MongoHouseResponse] = {
+    logger.debug(s"Requesting sold properties.")
+    logger.debug(s"\tURI: $uri")
     HttpClient.get[Array[MongoHouseResponse]](uri, Seq())
   }
 }

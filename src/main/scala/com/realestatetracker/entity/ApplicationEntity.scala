@@ -1,9 +1,10 @@
 package com.realestatetracker.entity
 
-import java.time.LocalDate
+import java.time.{LocalDate, LocalDateTime}
 import java.time.format.DateTimeFormatter
 
 import com.realestatetracker.config.Config
+import com.realestatetracker.request.{ExecutionStatus, ProcessType}
 
 import scala.util.Try
 
@@ -14,9 +15,10 @@ trait ApplicationEntity {
 
 case class Execution(
   executionId: Long,
-  started: LocalDate,
-  ended: LocalDate,
-  status: String,
+  started: LocalDateTime,
+  ended: LocalDateTime,
+  status: ExecutionStatus,
+  processType: ProcessType,
   date: LocalDate,
   minimumPrice: Int,
   maximumPrice: Int,
