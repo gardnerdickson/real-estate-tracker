@@ -83,7 +83,7 @@ object PropertyListing {
 }
 
 case class PriceChangePropertyListing(
-  mlsNumber: String,
+  property: PropertyListing,
   oldPrice: Int,
   newPrice: Int
 ) extends ApplicationEntity

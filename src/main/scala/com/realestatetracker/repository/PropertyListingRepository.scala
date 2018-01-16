@@ -32,7 +32,7 @@ object PropertyListingRepository {
 
   private val changedPriceStatement =
     """
-      |select old.mls_number as mls_number, old.price as old_price, new.price as new_price
+      |select new.*, old.price as old_price, new.price as new_price
       |from realtor_property_listing old
       |inner join realtor_property_listing new
       |on old.mls_number = new.mls_number
@@ -40,6 +40,16 @@ object PropertyListingRepository {
       |and old.au_execution_id = ?
       |and new.au_execution_id = ?
       |and old.price != new.price
+    """.stripMargin
+
+  private val newPropertiesStatement =
+    """
+      |select * from realtor_property_listing new
+      |where au_execution_id = ?
+      |and mls_number not in (
+      | select mls_number from realtor_property_listing
+      | where au_execution_id = ?
+      |)
     """.stripMargin
 
   private def convertResultSet(resultSet: ResultSet): List[PropertyListing] = {
@@ -66,7 +76,26 @@ object PropertyListingRepository {
   private def convertResultSetToPriceChangedProperty(resultSet: ResultSet): List[PriceChangePropertyListing] = {
     val listBuffer = new ListBuffer[PriceChangePropertyListing]
     while (resultSet.next()) {
-      listBuffer.append(PriceChangePropertyListing(resultSet.getString("mls_number"), resultSet.getInt("old_price"), resultSet.getInt("new_price")))
+      listBuffer.append(
+        PriceChangePropertyListing(
+          PropertyListing(
+            resultSet.getLong("au_execution_id"),
+            resultSet.getLong("realtor_id"),
+            resultSet.getString("mls_number"),
+            resultSet.getString("description"),
+            resultSet.getString("num_bathrooms"),
+            resultSet.getString("num_bedrooms"),
+            resultSet.getString("building_type"),
+            resultSet.getInt("price"),
+            resultSet.getString("address"),
+            resultSet.getFloat("longitude"),
+            resultSet.getFloat("latitude"),
+            resultSet.getString("postal_code")
+          ),
+          resultSet.getInt("old_price"),
+          resultSet.getInt("new_price")
+        )
+      )
     }
     listBuffer.toList
   }
@@ -129,6 +158,17 @@ class PropertyListingRepository {
     val connection = DriverManager.getConnection(Config.databaseConnection, Config.databaseUsername, Config.databasePassword)
     val preparedStatement = connection.prepareStatement(PropertyListingRepository.changedPriceStatement)
     preparedStatement.setLong(1, executionId)
+    val resultSet = preparedStatement.executeQuery()
+    val propertyListings = PropertyListingRepository.convertResultSet(resultSet)
+    connection.close()
+    propertyListings
+  }
+
+  def queryForNewProperties(oldExecutionId: Long, newExecutionId: Long): List[PropertyListing] = {
+    val connection = DriverManager.getConnection(Config.databaseConnection, Config.databaseUsername, Config.databasePassword)
+    val preparedStatement = connection.prepareStatement(PropertyListingRepository.newPropertiesStatement)
+    preparedStatement.setLong(1, newExecutionId)
+    preparedStatement.setLong(2, oldExecutionId)
     val resultSet = preparedStatement.executeQuery()
     val propertyListings = PropertyListingRepository.convertResultSet(resultSet)
     connection.close()

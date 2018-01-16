@@ -73,7 +73,7 @@ class GmailReportMailer(val username: String, val password: String, val applicat
       email.addRecipient(Message.RecipientType.TO, new InternetAddress(address))
     }
     email.setSubject(subject)
-    email.setText(messageText)
+    email.setText(messageText, "UTF-8", "html")
 
     val buffer = new ByteArrayOutputStream()
     email.writeTo(buffer)
