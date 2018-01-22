@@ -14,9 +14,8 @@ object ReportGenerator extends LazyLogging {
 
   private val executionRepository = new ExecutionRepository
 
-  def main(args: Array[String]): Unit = {
-
-    val process = new Process(ProcessType.GENERATE_REPORT, (executionId, date) => {
+  def getProcess: Process = {
+    new Process(ProcessType.GENERATE_REPORT, (executionId, date) => {
       val execution = executionRepository.getLatestCompleteExecution(ProcessType.DOWNLOAD_PROPERTIES, date)
       if (execution.isEmpty) {
         throw new RuntimeException(s"No executions for date: $date, process type: ${ProcessType.DOWNLOAD_PROPERTIES.name()}")
@@ -24,7 +23,6 @@ object ReportGenerator extends LazyLogging {
       logger.info(s"Latest execution ID for ${ProcessType.DOWNLOAD_PROPERTIES.name()} is ${execution.get.executionId}")
       generateAndSendReport(execution.get.executionId, date)
     })
-    process.run(args)
   }
 
   private def generateAndSendReport(executionId: Long, date: LocalDate): Unit = {

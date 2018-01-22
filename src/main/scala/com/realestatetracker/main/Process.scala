@@ -9,14 +9,12 @@ import com.typesafe.scalalogging.LazyLogging
 
 class Process(val processType: ProcessType, val runner: (Long, LocalDate) => Unit) extends LazyLogging {
 
-  def run(args: Array[String]): Unit = {
+  def run(date: LocalDate): Unit = {
 
     val executionRepository = new ExecutionRepository()
 
-    val (executionId, date) = try {
-      val date = LocalDate.parse(args(0), Config.commandLineDateFormat)
-      val executionId =  executionRepository.createExecutionLog(date, processType)
-      (executionId, date)
+    val executionId = try {
+      executionRepository.createExecutionLog(date, processType)
     } catch {
       case e: Exception =>
         logger.error("Failed to initialize application.", e)

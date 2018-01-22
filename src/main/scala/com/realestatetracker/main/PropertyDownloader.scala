@@ -4,6 +4,7 @@ import java.time.LocalDate
 
 import com.realestatetracker.config.Config
 import com.realestatetracker.entity.{MongoSoldProperty, PropertyListing, SigmaSoldProperty}
+import com.realestatetracker.main.PropertyDownloader.downloadRealtorProperties
 import com.realestatetracker.repository.{MongoSoldPropertyRepository, PropertyListingRepository, SigmaSoldPropertyRepository}
 import com.realestatetracker.request._
 import com.typesafe.scalalogging.LazyLogging
@@ -11,12 +12,10 @@ import com.typesafe.scalalogging.LazyLogging
 
 object PropertyDownloader extends LazyLogging {
 
-  def main(args: Array[String]): Unit = {
-    val process = new Process(ProcessType.DOWNLOAD_PROPERTIES, (executionId: Long, date: LocalDate) => {
+  def getProcess: Process = {
+    new Process(ProcessType.DOWNLOAD_PROPERTIES, (executionId: Long, date: LocalDate) => {
       downloadRealtorProperties(executionId)
-//      downloadMongoHouseProperties(executionId, date)
     })
-    process.run(args)
   }
 
 
