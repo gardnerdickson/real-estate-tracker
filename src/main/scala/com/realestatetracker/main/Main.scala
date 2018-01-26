@@ -16,7 +16,7 @@ object Main {
       case Success(processType) => processType
       case Failure(e) => throw new IllegalArgumentException(s"Cannot resolve process type: ${args(0)}")
     }
-    val date = LocalDate.parse(args(1), Config.commandLineDateFormat)
+    val date = LocalDate.parse(args(1), Config.commandLineDateFormat).minusDays(1)
 
     val process = if (mode equals ProcessType.DOWNLOAD_PROPERTIES) {
       PropertyDownloader.getProcess
