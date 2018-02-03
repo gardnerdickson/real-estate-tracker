@@ -42,6 +42,10 @@ object Config {
   def mongoHouseRequestUri: String = settings.getProperty("api.mongohouse.uri")
   def houseSigmaRequestUri: String = settings.getProperty("api.housesigma.uri")
 
+  def condosDotCaLink(mlsNumber: String): String = {
+    settings.getProperty("condos.ca.linkPattern").replace("${MLS_NUMBER}", mlsNumber)
+  }
+
   val commandLineDateFormat: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE
   val mongoHouseRequestDateFormat: String = "MM/dd/yyyy"
   val mongoHouseResponseDateFormats: Array[String] = Array("MM/dd/yyyy", "MM/d/yyyy", "M/d/yyyy", "M/dd/yyyy")

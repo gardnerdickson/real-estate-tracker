@@ -2,6 +2,7 @@ package com.realestatetracker.report
 
 import java.time.LocalDate
 
+import com.realestatetracker.config.Config
 import com.realestatetracker.entity.PriceChangePropertyListing
 import com.realestatetracker.repository.{ExecutionRepository, MongoSoldPropertyRepository, PropertyListingRepository}
 import com.realestatetracker.request.ProcessType
@@ -52,7 +53,6 @@ case class ReportBodySection(section: String) extends ReportSection {
 
   override def content: String = section
 }
-
 
 
 object Report {
@@ -148,6 +148,7 @@ class RealtorChangedPricesReport(val date: LocalDate) extends Report with LazyLo
          |Price Difference: ${Math.abs(changedPriceProperty.newPrice - changedPriceProperty.oldPrice)}
          |Description: ${changedPriceProperty.property.description}
          |Postal Code: ${changedPriceProperty.property.postalCode}
+         |Link: ${Config.condosDotCaLink(changedPriceProperty.property.mlsNumber)}
       """.stripMargin
     }
 
@@ -220,6 +221,7 @@ class RealtorNewPropertiesReport(val date: LocalDate) extends Report with LazyLo
            |Price: ${prop.price}
            |Description: ${prop.description}
            |Postal Code: ${prop.postalCode}
+           |Link: ${Config.condosDotCaLink(prop.mlsNumber)}
       """.stripMargin
       })
       .foreach(section => sections.append(ReportBodySection(section)))
