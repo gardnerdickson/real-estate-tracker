@@ -9,12 +9,15 @@ import com.realestatetracker.repository.{MongoSoldPropertyRepository, PropertyLi
 import com.realestatetracker.request._
 import com.typesafe.scalalogging.LazyLogging
 
+import scala.collection.mutable.ListBuffer
+
 
 object PropertyDownloader extends LazyLogging {
 
   def getProcess: Process = {
     new Process(ProcessType.DOWNLOAD_PROPERTIES, (executionId: Long, date: LocalDate) => {
-      downloadRealtorProperties(executionId)
+//      downloadRealtorProperties(executionId)
+      downloadMongoHouseProperties(executionId, date)
     })
   }
 
@@ -44,23 +47,27 @@ object PropertyDownloader extends LazyLogging {
   }
 
   private def downloadMongoHouseProperties(executionId: Long, date: LocalDate): Unit = {
-    val reportDate = date.minusDays(1)
-    val mongoHouseRequest = new MongoHouseResource()
-      .soldPropertyReportRequest
-      .date(reportDate)
-      .city("Toronto")
-      .build
+    val soldPropertyRecords = new ListBuffer[MongoSoldProperty]
+    for (offset <- 1 to 10) {
+      val reportDate = date.minusDays(offset)
+      val mongoHouseRequest = new MongoHouseResource()
+        .soldPropertyReportRequest
+        .date(reportDate)
+        .city("Toronto")
+        .build
 
-    val mongoHouseRecords = mongoHouseRequest.get
-    logger.info(s"Got sold properties from mongohouse.com. ${mongoHouseRecords.length} total records.")
-    val mongoSoldProperties = MongoSoldProperty(executionId, mongoHouseRecords)
+      val mongoHouseRecords = mongoHouseRequest.get
+      logger.info(s"Got sold properties from mongohouse.com. ${mongoHouseRecords.length} total records.")
+      soldPropertyRecords.append(MongoSoldProperty(executionId, mongoHouseRecords): _*)
+    }
+
 
     // DEBUG
-    //    mongoSoldProperties.foreach(println)
+    soldPropertyRecords.foreach(println)
 
-    logger.info("Adding mongohouse properties to the database.")
+    logger.info("Merging MongoHouse properties.")
     val mongoRepository = new MongoSoldPropertyRepository
-    mongoRepository.insertSoldProperties(mongoSoldProperties)
+    mongoRepository.insertSoldProperties(soldPropertyRecords)
     logger.info("Done adding mongohouse properties to the database.")
   }
 

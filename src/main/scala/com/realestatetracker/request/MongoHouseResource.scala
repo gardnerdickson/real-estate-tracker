@@ -1,7 +1,7 @@
 package com.realestatetracker.request
 
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
+import java.time.format.{DateTimeFormatter, DateTimeFormatterBuilder}
 
 import com.realestatetracker.config.Config
 import com.realestatetracker.entity.MongoHouseResponse
@@ -16,6 +16,10 @@ class MongoHouseResource {
   }
 }
 
+object SoldPropertyReportRequestBuilder {
+  private val dateTimePatternSpec = "{MONTH}/{DAY}/{YEAR}"
+}
+
 class SoldPropertyReportRequestBuilder extends GetRequestBuilder[Array[MongoHouseResponse]] {
 
   private var date: Option[LocalDate] = None
@@ -24,8 +28,15 @@ class SoldPropertyReportRequestBuilder extends GetRequestBuilder[Array[MongoHous
   override def build: GetRequest[Array[MongoHouseResponse]] = {
     tryValidate()
 
+    val monthPattern = if (date.get.getMonthValue < 10) "M" else "MM"
+    val dayPattern  = if (date.get.getDayOfMonth < 10) "d" else "dd"
+    val dateTimePattern = SoldPropertyReportRequestBuilder.dateTimePatternSpec
+      .replace("{MONTH}", monthPattern)
+      .replace("{DAY}", dayPattern)
+      .replace("{YEAR}", "yyyy")
+
     val uri = new URIBuilder(Config.mongoHouseRequestUri)
-      .setParameter("date", DateTimeFormatter.ofPattern(Config.mongoHouseRequestDateFormat).format(date.get))
+      .setParameter("date", DateTimeFormatter.ofPattern(dateTimePattern).format(date.get))
       .setParameter("city", city.get)
       .build()
 
