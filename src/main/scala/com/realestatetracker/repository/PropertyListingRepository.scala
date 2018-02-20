@@ -13,9 +13,9 @@ object PropertyListingRepository {
   private val insertStatement =
     """
       |insert into realtor_property_listing
-      |(au_execution_id, realtor_id, mls_number, description, num_bathrooms, num_bedrooms, building_type, price, address, longitude, latitude, postal_code)
+      |(au_execution_id, realtor_id, mls_number, description, num_bathrooms, num_bedrooms, building_type, price, address, longitude, latitude, postal_code, image_source)
       |values
-      |(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      |(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """.stripMargin
 
   private val queryByTimestampStatement =
@@ -67,7 +67,8 @@ object PropertyListingRepository {
         resultSet.getString("address"),
         resultSet.getFloat("longitude"),
         resultSet.getFloat("latitude"),
-        resultSet.getString("postal_code")
+        resultSet.getString("postal_code"),
+        resultSet.getString("image_source")
       ))
     }
     listBuffer.toList
@@ -90,7 +91,8 @@ object PropertyListingRepository {
             resultSet.getString("address"),
             resultSet.getFloat("longitude"),
             resultSet.getFloat("latitude"),
-            resultSet.getString("postal_code")
+            resultSet.getString("postal_code"),
+            resultSet.getString("image_source")
           ),
           resultSet.getInt("old_price"),
           resultSet.getInt("new_price")
@@ -124,6 +126,7 @@ class PropertyListingRepository {
       preparedStatement.setFloat(10, propertyListing.longitude)
       preparedStatement.setFloat(11, propertyListing.latitude)
       preparedStatement.setString(12, propertyListing.postalCode)
+      preparedStatement.setString(13, propertyListing.image)
       preparedStatement.addBatch()
     }
 

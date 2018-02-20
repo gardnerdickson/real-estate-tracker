@@ -41,6 +41,7 @@ case class PropertyListing(
   longitude: Float,
   latitude: Float,
   postalCode: String,
+  image: String
 ) extends ApplicationEntity
 
 object PropertyListing {
@@ -61,6 +62,14 @@ object PropertyListing {
       description.replace("'", "")
     }
 
+    def referencePhotoSafe(property: Property): String = {
+      if (property.photo != null && property.photo.isDefinedAt(0)) {
+        property.photo(0).highResPath
+      } else {
+        null
+      }
+    }
+
     new PropertyListing(
       executionId,
       realtorResult.id,
@@ -73,7 +82,8 @@ object PropertyListing {
       realtorResult.property.address.addressText,
       realtorResult.property.address.longitude,
       realtorResult.property.address.latitude,
-      realtorResult.postalCode
+      realtorResult.postalCode,
+      referencePhotoSafe(realtorResult.property)
     )
   }
 

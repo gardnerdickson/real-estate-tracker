@@ -101,7 +101,9 @@ case class Property(
   @JsonProperty("TypeId")
   typeId: String,
   @JsonProperty("OwnershipType")
-  ownershipType: String
+  ownershipType: String,
+  @JsonProperty("Photo")
+  photo: Array[Photo]
 ) extends HttpEntity
 
 case class Address(
@@ -111,6 +113,17 @@ case class Address(
   longitude: Float,
   @JsonProperty("Latitude")
   latitude: Float
+) extends HttpEntity
+
+case class Photo(
+  @JsonProperty("HighResPath")
+  highResPath: String,
+  @JsonProperty("MedResPath")
+  mediumResPath: String,
+  @JsonProperty("LowResPath")
+  lowResPath: String,
+  @JsonProperty("LastUpdated")
+  lastUpdated: String
 ) extends HttpEntity
 
 

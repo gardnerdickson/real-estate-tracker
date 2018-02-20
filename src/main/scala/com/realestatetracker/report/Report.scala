@@ -168,6 +168,7 @@ class RealtorChangedPricesReport(val date: LocalDate) extends Report with LazyLo
          |Description: ${changedPriceProperty.property.description}
          |Postal Code: ${changedPriceProperty.property.postalCode}
          |Link: ${Config.condosDotCaLink(changedPriceProperty.property.mlsNumber)}
+         |Image: <img src="${changedPriceProperty.property.image}">
       """.stripMargin
     }
 
@@ -241,6 +242,7 @@ class RealtorNewPropertiesReport(val date: LocalDate) extends Report with LazyLo
            |Description: ${prop.description}
            |Postal Code: ${prop.postalCode}
            |Link: ${Config.condosDotCaLink(prop.mlsNumber)}
+           |Image: <img src="${prop.image}">
       """.stripMargin
       })
       .foreach(section => sections.append(ReportBodySection(section)))
