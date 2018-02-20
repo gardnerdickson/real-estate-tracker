@@ -21,17 +21,17 @@ object ReportGenerator extends LazyLogging {
         throw new RuntimeException(s"No executions for date: $date, process type: ${ProcessType.DOWNLOAD_PROPERTIES.name()}")
       }
       logger.info(s"Latest execution ID for ${ProcessType.DOWNLOAD_PROPERTIES.name()} is ${execution.get.executionId}")
-      generateAndSendReport(execution.get.executionId, date)
+
+      val realtorReports = List(new RealtorChangedPricesReport(date), new RealtorNewPropertiesReport(date))
+      val soldPropertiesReports = List(new MongoSoldPropertiesReport(date))
+
+      generateAndSendReport(execution.get.executionId, date, realtorReports, "Realtor Properties Report")
+      generateAndSendReport(execution.get.executionId, date, soldPropertiesReports, "Sold Properties Report")
     })
   }
 
-  private def generateAndSendReport(executionId: Long, date: LocalDate): Unit = {
-    val reports = List(
-      new RealtorChangedPricesReport(date),
-      new RealtorNewPropertiesReport(date)
-//      new MongoSoldPropertiesReport(date)
-    )
 
+  private def generateAndSendReport(executionId: Long, date: LocalDate, reports: List[Report], reportName: String): Unit = {
     val sectionedReports = reports.map(_.createReportSections)
     logger.info("Creating the text report.")
     val textReport = Report.createTextReport(sectionedReports)
@@ -54,7 +54,7 @@ object ReportGenerator extends LazyLogging {
       Paths.get(Config.configDirectory, Config.googleSecretFile),
       Paths.get(Config.configDirectory, Config.googleCredentialDataStore)
     )
-    val emailTitle = s"[real-estate-tracker] Report for $date"
+    val emailTitle = s"[real-estate-tracker] $reportName for $date"
     reportMailer.sendEmail(emailTitle, Config.emailFromAddress, Config.emailRecipients, htmlReport)
   }
 }

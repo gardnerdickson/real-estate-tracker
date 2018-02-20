@@ -4,7 +4,6 @@ import java.time.LocalDate
 
 import com.realestatetracker.config.Config
 import com.realestatetracker.entity.{MongoSoldProperty, PropertyListing, SigmaSoldProperty}
-import com.realestatetracker.main.PropertyDownloader.downloadRealtorProperties
 import com.realestatetracker.repository.{MongoSoldPropertyRepository, PropertyListingRepository, SigmaSoldPropertyRepository}
 import com.realestatetracker.request._
 import com.typesafe.scalalogging.LazyLogging
@@ -16,7 +15,7 @@ object PropertyDownloader extends LazyLogging {
 
   def getProcess: Process = {
     new Process(ProcessType.DOWNLOAD_PROPERTIES, (executionId: Long, date: LocalDate) => {
-//      downloadRealtorProperties(executionId)
+      downloadRealtorProperties(executionId)
       downloadMongoHouseProperties(executionId, date)
     })
   }
@@ -48,7 +47,7 @@ object PropertyDownloader extends LazyLogging {
 
   private def downloadMongoHouseProperties(executionId: Long, date: LocalDate): Unit = {
     val soldPropertyRecords = new ListBuffer[MongoSoldProperty]
-    for (offset <- 1 to 10) {
+    for (offset <- 1 to Config.mongoHouseDateRange) {
       val reportDate = date.minusDays(offset)
       val mongoHouseRequest = new MongoHouseResource()
         .soldPropertyReportRequest
@@ -58,14 +57,18 @@ object PropertyDownloader extends LazyLogging {
 
       val mongoHouseRecords = mongoHouseRequest.get
       logger.info(s"Got sold properties from mongohouse.com. ${mongoHouseRecords.length} total records.")
-      soldPropertyRecords.append(MongoSoldProperty(executionId, mongoHouseRecords): _*)
+      logger.info(s"Filtering for price range ${Config.minimumPrice} to ${Config.maximumPrice}")
+      val priceFilteredRecords = mongoHouseRecords.filter(property => {
+        property.listedPrice >= Config.minimumPrice && property.listedPrice <= Config.maximumPrice
+      })
+      logger.info(s"Filtered out ${mongoHouseRecords.length - priceFilteredRecords.length} records. ${priceFilteredRecords.length} records left.")
+      soldPropertyRecords.append(MongoSoldProperty(executionId, priceFilteredRecords): _*)
     }
 
-
     // DEBUG
-    soldPropertyRecords.foreach(println)
+//    soldPropertyRecords.foreach(println)
 
-    logger.info("Merging MongoHouse properties.")
+    logger.info("Adding mongohouse properties to the database.")
     val mongoRepository = new MongoSoldPropertyRepository
     mongoRepository.insertSoldProperties(soldPropertyRecords)
     logger.info("Done adding mongohouse properties to the database.")

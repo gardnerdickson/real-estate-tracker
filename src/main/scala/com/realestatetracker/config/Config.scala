@@ -48,6 +48,7 @@ object Config {
 
   val commandLineDateFormat: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE
   val mongoHouseResponseDateFormats: Array[String] = Array("MM/dd/yyyy", "MM/d/yyyy", "M/d/yyyy", "M/dd/yyyy")
+  val mongoHouseDateRange: Int = settings.getProperty("mongohouse.dateRange").toInt
 
   def reportDirectory: String = settings.getProperty("report.directory")
   def reportFile(date: LocalDate): String = {

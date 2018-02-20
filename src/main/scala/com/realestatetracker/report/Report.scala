@@ -3,7 +3,7 @@ package com.realestatetracker.report
 import java.time.LocalDate
 
 import com.realestatetracker.config.Config
-import com.realestatetracker.entity.PriceChangePropertyListing
+import com.realestatetracker.entity.{Execution, MongoSoldProperty, PriceChangePropertyListing}
 import com.realestatetracker.repository.{ExecutionRepository, MongoSoldPropertyRepository, PropertyListingRepository}
 import com.realestatetracker.request.ProcessType
 import com.typesafe.scalalogging.LazyLogging
@@ -115,6 +115,19 @@ class MongoSoldPropertiesReport(val date: LocalDate) extends Report with LazyLog
   private val executionRepository = new ExecutionRepository
 
   override def createReportSections: List[ReportSection] = {
+
+    def createSection(property: MongoSoldProperty): String = {
+      val priceDifference = property.soldPrice - property.listedPrice
+      s"""
+         |MLS Number: ${property.mlsNumber}
+         |Property sold for ${if (priceDifference < 0) priceDifference.abs + " below" else if (priceDifference > 0) priceDifference.abs + " above" else ""} asking price.
+         |Listed price: ${property.listedPrice}
+         |Sold price: ${property.soldPrice}
+         |Date sold: ${property.dateSold}
+         |Days on market: ${property.daysOnMarket}
+       """.stripMargin
+    }
+
     logger.info(s"Getting latest complete execution for ${ProcessType.DOWNLOAD_PROPERTIES}")
     val execution = executionRepository.getLatestCompleteExecution(ProcessType.DOWNLOAD_PROPERTIES, date)
     if (execution.isEmpty) {
@@ -124,10 +137,16 @@ class MongoSoldPropertiesReport(val date: LocalDate) extends Report with LazyLog
 
     logger.info("Getting Mongo properties")
     val soldProperties = mongoSoldPropertyRepository.queryByExecutionId(execution.get.executionId)
+    val groupedProperties = soldProperties.groupBy(_.dateSold)
 
     val sections = new ListBuffer[ReportSection]
-    sections.append(ReportTitle(s"MLS LISTINGS SOLD ON $date"))
-    soldProperties.foreach(property => sections.append(ReportBodySection(property.mlsNumber.toString)))
+    sections.append(ReportTitle(s"MLS LISTINGS SOLD ON OVER THE LAST ${Config.mongoHouseDateRange} DAYS"))
+
+    for ((dateSold, properties) <- groupedProperties) {
+      sections.append(ReportSubtitle(s"Properties sold on $dateSold"))
+      properties.map(createSection).map(ReportBodySection).foreach(sections.append(_))
+    }
+
     sections.toList
   }
 }
