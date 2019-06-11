@@ -1,2 +1,0 @@
-- Mongohouse sold properties -> Download property from the last 10 days and merge?
-
